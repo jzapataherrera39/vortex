@@ -1,8 +1,8 @@
-// src/store/authStore.js
 import { create } from "zustand";
 import { loginRequest } from "../api/authApi";
+import { jwtDecode } from "jwt-decode";
 
-const useAuthStore = create((set) => ({
+const useAuthStore = create((set, get) => ({
   user: null,
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
   isAuthenticated: !!(typeof window !== "undefined" && localStorage.getItem("token")),
@@ -35,6 +35,14 @@ const useAuthStore = create((set) => ({
       localStorage.removeItem("token");
     }
     set({ user: null, token: null, isAuthenticated: false });
+  },
+
+  getUserFromToken: () => {
+    const token = get().token;
+    if (token) {
+      const decoded = jwtDecode(token);
+      set({ user: decoded });
+    }
   },
 }));
 

@@ -2,18 +2,17 @@ import { Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 
 import Welcome from "../pages/Welcome";
-import Login from "../pages/Login";
 
 import PoolList from "../pages/Pools/PoolList";
 import PoolCreate from "../pages/Pools/CreatePool";
 import PoolEdit from "../pages/Pools/EditPool";
 import UsersList from "../pages/Users/UsersList";
+import EditUser from "../pages/Users/EditUser";
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Welcome />} />
-      <Route path="/login" element={<Login />} />
 
       {/* Rutas protegidas */}
       <Route
@@ -28,7 +27,7 @@ export default function AppRouter() {
       <Route
         path="/pools/create"
         element={
-          <PrivateRoute>
+          <PrivateRoute adminOnly>
             <PoolCreate />
           </PrivateRoute>
         }
@@ -37,17 +36,26 @@ export default function AppRouter() {
       <Route
         path="/pools/edit/:id"
         element={
-          <PrivateRoute>
+          <PrivateRoute adminOnly>
             <PoolEdit />
           </PrivateRoute>
         }
       />
 
       <Route
-        path="/users"
+        path="/admin/users"
         element={
-          <PrivateRoute>
+          <PrivateRoute adminOnly>
             <UsersList />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users/edit/:id"
+        element={
+          <PrivateRoute adminOnly>
+            <EditUser />
           </PrivateRoute>
         }
       />

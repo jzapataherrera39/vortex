@@ -7,6 +7,8 @@ export interface IBomba {
   foto: string; // URL to image
   potencia: string;
   material: 'Sumergible' | 'Centrifuga';
+  seRepite: 'si' | 'no';
+  totalBombas?: number;
 }
 
 // Interface for the main Piscina document
@@ -34,6 +36,8 @@ const BombaSchema: Schema = new Schema({
   foto: { type: String, required: true },
   potencia: { type: String, required: true },
   material: { type: String, enum: ['Sumergible', 'Centrifuga'], required: true },
+  seRepite: { type: String, enum: ['si', 'no'], required: true },
+  totalBombas: { type: Number },
 });
 
 const PiscinaSchema: Schema = new Schema({
@@ -66,9 +70,7 @@ const PiscinaSchema: Schema = new Schema({
   foto: { type: String, required: true },
   bombas: [BombaSchema],
   hojaSeguridad: { type: String, required: true },
-  fichaTecnica: { type: String, required: true },
-}, {
-  timestamps: true,
+ fichaTecnica: { type: String, required: true },
 });
 
 export default mongoose.model<IPiscina>('Piscina', PiscinaSchema);

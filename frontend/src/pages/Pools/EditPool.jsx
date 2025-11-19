@@ -1,96 +1,93 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import poolStore from "../../store/poolStore";
-import { getPools } from "../../api/poolApi";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { TextField, Button, Typography, Container, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { getPoolById, updatePool } from '../../api/poolsApi';
 
-export default function EditPool() {
-  const navigate = useNavigate();
-  const { id } = useParams();
-
-  const { updatePool } = poolStore();
-
-  const [form, setForm] = useState({
-    nombre: "",
-    tamaño: "",
-    capacidad: "",
-    estado: "activo",
-  });
-
-  useEffect(() => {
-    async function loadPool() {
-      const res = await getPools();          // Trae todas
-      const pool = res.data.find((p) => p._id === id);  // Filtra la que toca
-
-      if (!pool) return;
-
-      setForm({
-        nombre: pool.nombre,
-        tamaño: pool.tamaño,
-        capacidad: pool.capacidad,
-        estado: pool.estado,
-      });
-    }
-
-    loadPool();
-  }, [id]);
-
-  function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
+const EditPool = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [pool, setPool] = useState(null);
+    const [formData, setFormData] = useState({ 
+        nombre: '', 
+        direccion: '', 
+        altura: '', 
+        ancho: '', 
+        ciudad: '', 
+        municipio: '', 
+        categoria: '', 
+        profundidades: '', 
+        forma: '', 
+        uso: '' 
     });
-  }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    await updatePool(id, form);
-    navigate("/pools");
-  }
+    useEffect(() => {
+        const fetchPool = async () => {
+            const fetchedPool = await getPoolById(id);
+            setPool(fetchedPool);
+            setFormData({
+                nombre: fetchedPool.nombre,
+                direccion: fetchedPool.direccion,
+                altura: fetchedPool.altura,
+                ancho: fetchedPool.ancho,
+                ciudad: fetchedPool.ciudad,
+                municipio: fetchedPool.municipio,
+                categoria: fetchedPool.categoria,
+                profundidades: JSON.stringify(fetchedPool.profundidades),
+                forma: fetchedPool.forma,
+                uso: fetchedPool.uso
+            });
+        };
+        fetchPool();
+    }, [id]);
 
-  return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Editar Piscina</h2>
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await updatePool(id, formData);
+        navigate('/pools');
+    };
 
-        <input
-          name="nombre"
-          value={form.nombre}
-          placeholder="Nombre"
-          className="border p-2 w-full"
-          onChange={handleChange}
-        />
+    if (!pool) return <Typography>Loading...</Typography>;
 
-        <input
-          name="tamaño"
-          value={form.tamaño}
-          placeholder="Tamaño (m²)"
-          className="border p-2 w-full"
-          onChange={handleChange}
-        />
+    return (
+        <Container>
+            <Typography variant="h4" gutterBottom>Edit Pool</Typography>
+            <form onSubmit={handleSubmit}>
+                <TextField name="nombre" label="Nombre" value={formData.nombre} onChange={handleChange} fullWidth margin="normal" />
+                <TextField name="direccion" label="Dirección" value={formData.direccion} onChange={handleChange} fullWidth margin="normal" />
+                <TextField name="altura" label="Altura" value={formData.altura} onChange={handleChange} fullWidth margin="normal" />
+                <TextField name="ancho" label="Ancho" value={formData.ancho} onChange={handleChange} fullWidth margin="normal" />
+                <TextField name="ciudad" label="Ciudad" value={formData.ciudad} onChange={handleChange} fullWidth margin="normal" />
+                <TextField name="municipio" label="Municipio" value={formData.municipio} onChange={handleChange} fullWidth margin="normal" />
+                <FormControl fullWidth margin="normal">
+                    <InputLabel>Categoría</InputLabel>
+                    <Select name="categoria" value={formData.categoria} onChange={handleChange}>
+                        <MenuItem value="Niños">Niños</MenuItem>
+                        <MenuItem value="Adultos">Adultos</MenuItem>
+                    </Select>
+                </FormControl>
+                <TextField name="profundidades" label="Profundidades (comma separated)" value={formData.profundidades} onChange={handleChange} fullWidth margin="normal" />
+                <FormControl fullWidth margin="normal">
+                    <InputLabel>Forma</InputLabel>
+                    <Select name="forma" value={formData.forma} onChange={handleChange}>
+                        <MenuItem value="Rectangular">Rectangular</MenuItem>
+                        <MenuItem value="Circular">Circular</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth margin="normal">
+                    <InputLabel>Uso</InputLabel>
+                    <Select name="uso" value={formData.uso} onChange={handleChange}>
+                        <MenuItem value="Privada">Privada</MenuItem>
+                        <MenuItem value="Publica">Pública</MenuItem>
+                    </Select>
+                </FormControl>
+                <Button type="submit" variant="contained" color="primary">Update Pool</Button>
+            </form>
+        </Container>
+    );
+};
 
-        <input
-          name="capacidad"
-          value={form.capacidad}
-          placeholder="Capacidad (L)"
-          className="border p-2 w-full"
-          onChange={handleChange}
-        />
-
-        <select
-          name="estado"
-          value={form.estado}
-          className="border p-2 w-full"
-          onChange={handleChange}
-        >
-          <option value="activo">Activa</option>
-          <option value="inactivo">Inactiva</option>
-        </select>
-
-        <button className="bg-green-600 text-white px-4 py-2 rounded">
-          Actualizar
-        </button>
-      </form>
-    </div>
-  );
-}
+export default EditPool;

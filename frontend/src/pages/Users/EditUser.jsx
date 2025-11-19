@@ -1,63 +1,68 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import userStore from "../../store/userStore";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { TextField, Button, Typography, Container, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { getUserById, updateUser } from '../../api/usersApi';
 
-export default function EditUser() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { token, getUsers, updateUser } = userStore();
-  const [form, setForm] = useState({ nombre: "", email: "", rol: "USER" });
+const EditUser = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [formData, setFormData] = useState({ nombre: '', apellido: '', cedula: '', email: '', rol: '', state: '' });
 
-  useEffect(() => {
-    async function loadUser() {
-      const users = await getUsers(token);
-      const user = users.find(u => u._id === id);
-      if (user) setForm({ nombre: user.nombre, email: user.email, rol: user.rol });
-    }
-    if (token) loadUser();
-  }, [id, token, getUsers]);
+    useEffect(() => {
+        const fetchUser = async () => {
+            const fetchedUser = await getUserById(id);
+            setUser(fetchedUser);
+            setFormData({ 
+                nombre: fetchedUser.nombre,
+                apellido: fetchedUser.apellido,
+                cedula: fetchedUser.cedula,
+                email: fetchedUser.email,
+                rol: fetchedUser.rol,
+                state: fetchedUser.state
+            });
+        };
+        fetchUser();
+    }, [id]);
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    await updateUser(id, form, token);
-    navigate("/users");
-  }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await updateUser(id, formData);
+        navigate('/admin/users');
+    };
 
-  return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Editar Usuario</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="nombre"
-          value={form.nombre}
-          placeholder="Nombre"
-          className="border p-2 w-full"
-          onChange={handleChange}
-        />
-        <input
-          name="email"
-          value={form.email}
-          placeholder="Email"
-          className="border p-2 w-full"
-          onChange={handleChange}
-        />
-        <select
-          name="rol"
-          value={form.rol}
-          className="border p-2 w-full"
-          onChange={handleChange}
-        >
-          <option value="USER">USER</option>
-          <option value="ADMIN">ADMIN</option>
-        </select>
-        <button className="bg-green-600 text-white px-4 py-2 rounded">
-          Guardar
-        </button>
-      </form>
-    </div>
-  );
-}
+    if (!user) return <Typography>Loading...</Typography>;
+
+    return (
+        <Container>
+            <Typography variant="h4" gutterBottom>Edit User</Typography>
+            <form onSubmit={handleSubmit}>
+                <TextField name="nombre" label="Nombre" value={formData.nombre} onChange={handleChange} fullWidth margin="normal" />
+                <TextField name="apellido" label="Apellido" value={formData.apellido} onChange={handleChange} fullWidth margin="normal" />
+                <TextField name="cedula" label="Cédula" value={formData.cedula} onChange={handleChange} fullWidth margin="normal" />
+                <TextField name="email" label="Email" value={formData.email} onChange={handleChange} fullWidth margin="normal" />
+                <FormControl fullWidth margin="normal">
+                    <InputLabel>Rol</InputLabel>
+                    <Select name="rol" value={formData.rol} onChange={handleChange}>
+                        <MenuItem value="ADMIN">ADMIN</MenuItem>
+                        <MenuItem value="USER">USER</MenuItem>
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth margin="normal">
+                    <InputLabel>Estado</InputLabel>
+                    <Select name="state" value={formData.state} onChange={handleChange}>
+                        <MenuItem value="activo">Activo</MenuItem>
+                        <MenuItem value="inactivo">Inactivo</MenuItem>
+                    </Select>
+                </FormControl>
+                <Button type="submit" variant="contained" color="primary">Update User</Button>
+            </form>
+        </Container>
+    );
+};
+
+export default EditUser;

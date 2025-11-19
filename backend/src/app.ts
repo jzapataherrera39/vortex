@@ -11,7 +11,11 @@ const app: Application = express();
 app.use(express.json());
 
 // Cors Middleware
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:3000', // Origen permitido
+  optionsSuccessStatus: 200 // Para algunos navegadores antiguos
+};
+app.use(cors(corsOptions));
 
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger';

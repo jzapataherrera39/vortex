@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 import Piscina from '../models/Piscina';
 import { uploadFromBuffer, deleteFromCloudinary } from '../utils/cloudinaryUploader';
@@ -38,8 +39,6 @@ const createPiscina = async (req: Request, res: Response) => {
 
         // --- Dynamic Bomba Handling ---
         const bombasData = [];
-        // Assuming frontend sends bombas as bombas[0][marca], bombas[0][foto], etc.
-        // This is a simplified parsing logic. A more robust solution might be needed.
         const bombasFromRequest = req.body.bombas || [];
         for (let i = 0; i < bombasFromRequest.length; i++) {
             const bombaInfo = bombasFromRequest[i];
@@ -56,9 +55,10 @@ const createPiscina = async (req: Request, res: Response) => {
                 potencia: bombaInfo.potencia,
                 material: bombaInfo.material,
                 foto: uploadResult.secure_url,
+		seRepite: bombaInfo.seRepite,
+		totalBombas: bombaInfo.totalBombas
             };
 
-            // Handle the "se repite la bomba" logic
             if (bombaInfo.seRepite === 'si' && bombaInfo.totalBombas) {
                 const count = parseInt(bombaInfo.totalBombas, 10);
                 for (let j = 0; j < count; j++) {
@@ -77,7 +77,7 @@ const createPiscina = async (req: Request, res: Response) => {
             ciudad,
             municipio,
             categoria,
-            profundidades: JSON.parse(profundidades), // Assuming profundidades is a JSON string array
+            profundidades: JSON.parse(profundidades),
             forma,
             uso,
             foto: fotoUrl,
@@ -124,6 +124,58 @@ const getPiscinaById = async (req: Request, res: Response) => {
     }
 };
 
+// @desc    Update a piscina
+// @route   PUT /api/piscinas/:id
+// @access  Private/Admin
+const updatePiscina = async (req: Request, res: Response) => {
+    try {
+        const piscina = await Piscina.findById(req.params.id);
+
+        if (!piscina) {
+            return res.status(404).json({ message: 'Piscina no encontrada' });
+        }
+
+        const { nombre, direccion, altura, ancho, ciudad, municipio, categoria, profundidades, forma, uso, ...rest } = req.body;
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+        // --- File Updates ---
+        if (files.foto) {
+            await deleteFromCloudinary(getPublicId(piscina.foto));
+            const result = await uploadFromBuffer(files.foto[0].buffer, 'piscinas/fotos');
+            piscina.foto = result.secure_url;
+        }
+        if (files.hojaSeguridad) {
+            await deleteFromCloudinary(getPublicId(piscina.hojaSeguridad));
+            const result = await uploadFromBuffer(files.hojaSeguridad[0].buffer, 'piscinas/documentos');
+            piscina.hojaSeguridad = result.secure_url;
+        }
+        if (files.fichaTecnica) {
+            await deleteFromCloudinary(getPublicId(piscina.fichaTecnica));
+            const result = await uploadFromBuffer(files.fichaTecnica[0].buffer, 'piscinas/documentos');
+            piscina.fichaTecnica = result.secure_url;
+        }
+
+		// --- Update Fields ---
+		piscina.nombre = nombre || piscina.nombre;
+		piscina.direccion = direccion || piscina.direccion;
+		piscina.altura = altura || piscina.altura;
+		piscina.ancho = ancho || piscina.ancho;
+		piscina.ciudad = ciudad || piscina.ciudad;
+		piscina.municipio = municipio || piscina.municipio;
+		piscina.categoria = categoria || piscina.categoria;
+		piscina.profundidades = profundidades ? JSON.parse(profundidades) : piscina.profundidades;
+		piscina.forma = forma || piscina.forma;
+		piscina.uso = uso || piscina.uso;
+
+        const updatedPiscina = await piscina.save();
+        res.json(updatedPiscina);
+
+    } catch (error: any) {
+        console.error(error);
+        res.status(500).json({ message: 'Error del servidor', error: error.message });
+    }
+};
+
 // @desc    Delete a piscina
 // @route   DELETE /api/piscinas/:id
 // @access  Private/Admin
@@ -150,9 +202,4 @@ const deletePiscina = async (req: Request, res: Response) => {
     }
 };
 
-
-// NOTE: updatePiscina is complex due to file handling and is left as an exercise.
-// A full implementation would need to check which files are being replaced,
-// delete the old ones from Cloudinary, and upload the new ones.
-
-export { createPiscina, getPiscinas, getPiscinaById, deletePiscina };
+export { createPiscina, getPiscinas, getPiscinaById, updatePiscina, deletePiscina };
