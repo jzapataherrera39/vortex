@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 
 import Welcome from "../pages/Welcome";
+import LoginPage from "../pages/LoginPage";
 import PoolList from "../pages/Pools/PoolList";
 import PoolCreate from "../pages/Pools/CreatePool";
 import PoolEdit from "../pages/Pools/EditPool";
@@ -11,7 +12,9 @@ import EditUser from "../pages/Users/EditUser";
 export default function AppRouter() {
   return (
     <Routes>
+      {/* Rutas públicas */}
       <Route path="/" element={<Welcome />} />
+      <Route path="/login" element={<LoginPage />} />
 
       {/* Rutas protegidas */}
       <Route

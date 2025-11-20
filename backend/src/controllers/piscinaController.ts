@@ -69,6 +69,19 @@ const createPiscina = async (req: Request, res: Response) => {
             }
         }
 
+        let parsedProfundidades;
+        try {
+            if (typeof profundidades === 'string') {
+                parsedProfundidades = JSON.parse(profundidades);
+            } else if (typeof profundidades === 'object') {
+                parsedProfundidades = profundidades;
+            } else {
+                return res.status(400).json({ message: 'El campo profundidades tiene un formato inválido' });
+            }
+        } catch (error) {
+            return res.status(400).json({ message: 'El campo profundidades no es un JSON válido' });
+        }
+
         const piscina = new Piscina({
             nombre,
             direccion,
@@ -77,7 +90,7 @@ const createPiscina = async (req: Request, res: Response) => {
             ciudad,
             municipio,
             categoria,
-            profundidades: JSON.parse(profundidades),
+            profundidades: parsedProfundidades,
             forma,
             uso,
             foto: fotoUrl,
@@ -163,7 +176,19 @@ const updatePiscina = async (req: Request, res: Response) => {
 		piscina.ciudad = ciudad || piscina.ciudad;
 		piscina.municipio = municipio || piscina.municipio;
 		piscina.categoria = categoria || piscina.categoria;
-		piscina.profundidades = profundidades ? JSON.parse(profundidades) : piscina.profundidades;
+        if (profundidades) {
+            try {
+                if (typeof profundidades === 'string') {
+                    piscina.profundidades = JSON.parse(profundidades);
+                } else if (typeof profundidades === 'object') {
+                    piscina.profundidades = profundidades;
+                } else {
+                     return res.status(400).json({ message: 'El campo profundidades tiene un formato inválido' });
+                }
+            } catch (error) {
+                return res.status(400).json({ message: 'El campo profundidades no es un JSON válido' });
+            }
+        }
 		piscina.forma = forma || piscina.forma;
 		piscina.uso = uso || piscina.uso;
 
