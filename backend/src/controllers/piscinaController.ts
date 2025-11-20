@@ -244,5 +244,21 @@ const deletePiscina = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error del servidor', error: error.message });
     }
 };
+const togglePiscinaStatus = async (req: Request, res: Response) => {
+    try {
+        const piscina = await Piscina.findById(req.params.id);
 
-export { createPiscina, getPiscinas, getPiscinaById, updatePiscina, deletePiscina };
+        if (piscina) {
+            // Cambiar al estado opuesto
+            piscina.estado = piscina.estado === 'activo' ? 'inactivo' : 'activo';
+            const updatedPiscina = await piscina.save();
+            res.json(updatedPiscina);
+        } else {
+            res.status(404).json({ message: 'Piscina no encontrada' });
+        }
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error del servidor', error: error.message });
+    }
+};
+
+export { createPiscina, getPiscinas, getPiscinaById, updatePiscina, deletePiscina, togglePiscinaStatus };

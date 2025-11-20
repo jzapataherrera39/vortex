@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPiscina, getPiscinas, getPiscinaById, updatePiscina, deletePiscina } from '../controllers/piscinaController';
+import { createPiscina, getPiscinas, getPiscinaById, updatePiscina, deletePiscina, togglePiscinaStatus } from '../controllers/piscinaController';
 import { protect, admin } from '../middlewares/authMiddleware';
 import upload from '../middlewares/uploadHandler';
 import { piscinaValidationRules } from '../middlewares/piscinaValidator';
@@ -24,6 +24,10 @@ router.route('/:id')
   .get(protect, getPiscinaById)
   .put(protect, admin, upload.fields(uploadFields), piscinaValidationRules(), validateRequest, updatePiscina)
   .delete(protect, admin, deletePiscina);
+
+
+router.route('/:id/toggle')
+  .put(protect, admin, togglePiscinaStatus);
 
 export default router;
 

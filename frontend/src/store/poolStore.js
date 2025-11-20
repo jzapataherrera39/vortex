@@ -4,7 +4,8 @@ import {
   getPools,
   createPool,
   updatePool,
-  deletePool
+  deletePool,
+  togglePoolStatus
 } from "../api/poolsApi";
 
 const poolStore = create((set, get) => ({
@@ -38,6 +39,17 @@ const poolStore = create((set, get) => ({
       });
     } catch (err) {
       console.error("Error editing pool:", err);
+    }
+  },
+toggleStatus: async (id) => {
+    try {
+      const updatedPool = await togglePoolStatus(id);
+      // Actualizamos la lista localmente para reflejar el cambio sin recargar
+      set({
+        pools: get().pools.map((p) => (p._id === id ? updatedPool : p))
+      });
+    } catch (err) {
+      console.error("Error toggling pool status:", err);
     }
   },
 

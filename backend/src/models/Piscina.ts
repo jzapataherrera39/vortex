@@ -67,10 +67,12 @@ const PiscinaSchema: Schema = new Schema({
   },
   forma: { type: String, enum: ['Rectangular', 'Circular'], required: true },
   uso: { type: String, enum: ['Privada', 'Publica'], required: true },
+   estado: { type: String, enum: ['activo', 'inactivo'], default: 'activo' },
   foto: { type: String, required: true },
   bombas: [BombaSchema],
   hojaSeguridad: { type: String, required: true },
  fichaTecnica: { type: String, required: true },
+ 
 });
 
 export default mongoose.model<IPiscina>('Piscina', PiscinaSchema);

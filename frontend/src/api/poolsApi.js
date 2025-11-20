@@ -33,4 +33,9 @@ const deletePool = async (id) => {
     return response.data;
 };
 
+export const togglePoolStatus = async (id) => {
+    const response = await api.put(`/piscinas/${id}/toggle`);
+    return response.data;
+};
+
 export { getPools, getPoolById, createPool, updatePool, deletePool };

@@ -1,21 +1,19 @@
 import { Router } from 'express';
-import { getUsers, setUserState } from '../controllers/userController';
+import { getUsers, createUser, updateUser, toggleUserStatus, getUserById } from '../controllers/userController';
 import { protect, admin } from '../middlewares/authMiddleware';
-import { body } from 'express-validator';
-import { validateRequest } from '../middlewares/validateRequest';
 
 const router = Router();
 
 router.route('/')
-    .get(protect, admin, getUsers);
+  .get(protect, admin, getUsers)
+  .post(protect, admin, createUser);
 
-router.route('/:id/state')
-    .put(
-        protect,
-        admin,
-        [body('state', 'El estado es requerido').isIn(['activo', 'inactivo'])],
-        validateRequest,
-        setUserState
-    );
+router.route('/:id')
+  .get(protect, admin, getUserById)
+  .put(protect, admin, updateUser);
+
+// Esta es la ruta clave que faltaba para inactivar
+router.route('/:id/toggle')
+  .put(protect, admin, toggleUserStatus);
 
 export default router;
