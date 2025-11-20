@@ -4,17 +4,19 @@ import { TextField, Button, Typography, Container, Select, MenuItem, InputLabel,
 import { createPool } from '../../api/poolsApi';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { colombiaData } from '../../data/colombia.js';
 
 const CreatePool = () => {
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [filteredCities, setFilteredCities] = useState([]);
     const [formData, setFormData] = useState({
         nombre: '',
         direccion: '',
         altura: '',
         ancho: '',
+        departamento: '', // Renamed from municipio
         ciudad: '',
-        municipio: '',
         categoria: '',
         profundidades: '',
         forma: '',
@@ -24,6 +26,19 @@ const CreatePool = () => {
         fichaTecnica: null,
         bombas: [],
     });
+
+    const handleDepartamentoChange = (e) => {
+        const selectedDepartamento = e.target.value;
+        const deptoData = colombiaData.find(d => d.departamento === selectedDepartamento);
+        
+        setFormData({
+            ...formData,
+            departamento: selectedDepartamento,
+            ciudad: '' // Reset city on department change
+        });
+        
+        setFilteredCities(deptoData ? deptoData.ciudades : []);
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -90,8 +105,29 @@ const CreatePool = () => {
                 <TextField name="direccion" label="Dirección" onChange={handleChange} fullWidth margin="normal" required />
                 <TextField name="altura" label="Altura (metros)" onChange={handleChange} fullWidth margin="normal" required />
                 <TextField name="ancho" label="Ancho (metros)" onChange={handleChange} fullWidth margin="normal" required />
-                <TextField name="ciudad" label="Ciudad" onChange={handleChange} fullWidth margin="normal" required />
-                <TextField name="municipio" label="Municipio" onChange={handleChange} fullWidth margin="normal" required />
+
+                <FormControl fullWidth margin="normal" required>
+                    <InputLabel>Departamento</InputLabel>
+                    <Select name="departamento" value={formData.departamento} label="Departamento" onChange={handleDepartamentoChange}>
+                        {colombiaData.map((depto) => (
+                            <MenuItem key={depto.departamento} value={depto.departamento}>
+                                {depto.departamento}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <FormControl fullWidth margin="normal" required disabled={!formData.departamento}>
+                    <InputLabel>Ciudad</InputLabel>
+                    <Select name="ciudad" value={formData.ciudad} label="Ciudad" onChange={handleChange}>
+                        {filteredCities.map((city) => (
+                            <MenuItem key={city} value={city}>
+                                {city}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
                 <FormControl fullWidth margin="normal" required>
                     <InputLabel>Categoría</InputLabel>
                     <Select name="categoria" value={formData.categoria} label="Categoría" onChange={handleChange}>
