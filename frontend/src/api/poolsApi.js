@@ -1,61 +1,35 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/piscinas';
-
-const getToken = () => {
-  const authStorage = JSON.parse(localStorage.getItem('auth-storage'));
-  return authStorage?.state?.token || null;
-};
+import api from './api';
 
 const getPools = async () => {
-    const config = {
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-        },
-    };
-    const response = await axios.get(API_URL, config);
+    const response = await api.get('/piscinas');
     return response.data;
 };
 
 const getPoolById = async (id) => {
-    const config = {
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-        },
-    };
-    const response = await axios.get(`${API_URL}/${id}`, config);
+    const response = await api.get(`/piscinas/${id}`);
     return response.data;
 };
 
 const createPool = async (poolData) => {
-    const config = {
+    const response = await api.post('/piscinas', poolData, {
         headers: {
-            Authorization: `Bearer ${getToken()}`,
             'Content-Type': 'multipart/form-data',
         },
-    };
-    const response = await axios.post(API_URL, poolData, config);
+    });
     return response.data;
 };
 
 const updatePool = async (id, poolData) => {
-    const config = {
+    const response = await api.put(`/piscinas/${id}`, poolData, {
         headers: {
-            Authorization: `Bearer ${getToken()}`,
             'Content-Type': 'multipart/form-data',
         },
-    };
-    const response = await axios.put(`${API_URL}/${id}`, poolData, config);
+    });
     return response.data;
 };
 
 const deletePool = async (id) => {
-    const config = {
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-        },
-    };
-    const response = await axios.delete(`${API_URL}/${id}`, config);
+    const response = await api.delete(`/piscinas/${id}`);
     return response.data;
 };
 

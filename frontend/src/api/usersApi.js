@@ -1,56 +1,27 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/users';
-
-const getToken = () => localStorage.getItem('token');
+import api from './api';
 
 const getUsers = async () => {
-    const config = {
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-        },
-    };
-    const response = await axios.get(API_URL, config);
+    const response = await api.get('/users');
     return response.data;
 };
 
 const getUserById = async (id) => {
-    const config = {
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-        },
-    };
-    const response = await axios.get(`${API_URL}/${id}`, config);
+    const response = await api.get(`/users/${id}`);
     return response.data;
 };
 
 const updateUser = async (id, userData) => {
-    const config = {
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-        },
-    };
-    const response = await axios.put(`${API_URL}/${id}`, userData, config);
+    const response = await api.put(`/users/${id}`, userData);
     return response.data;
 };
 
 const deleteUser = async (id) => {
-    const config = {
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-        },
-    };
-    const response = await axios.delete(`${API_URL}/${id}`, config);
+    const response = await api.delete(`/users/${id}`);
     return response.data;
 };
 
 const setUserState = async (id, state) => {
-    const config = {
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-        },
-    };
-    const response = await axios.put(`${API_URL}/${id}/state`, { state }, config);
+    const response = await api.put(`/users/${id}/state`, { state });
     return response.data;
 };
 
