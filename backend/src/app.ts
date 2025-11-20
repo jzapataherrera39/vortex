@@ -12,8 +12,8 @@ app.use(express.json());
 
 // Cors Middleware
 const corsOptions = {
-  origin: 'http://localhost:3000', // Origen permitido
-  optionsSuccessStatus: 200 // Para algunos navegadores antiguos
+  origin: 'http://localhost:3000', 
+  optionsSuccessStatus: 200 
 };
 app.use(cors(corsOptions));
 
@@ -28,7 +28,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('API is running...');
 });
 
-// Import routes
+// Import rutas
 import authRoutes from './routes/authRoutes';
 import piscinaRoutes from './routes/piscinaRoutes';
 import userRoutes from './routes/userRoutes';

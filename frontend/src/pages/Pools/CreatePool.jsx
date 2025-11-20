@@ -92,6 +92,90 @@ const CreatePool = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        // Validaciones del cliente
+        if (!formData.nombre.trim()) {
+            setError('El nombre de la piscina es requerido');
+            return;
+        }
+        if (!formData.direccion.trim()) {
+            setError('La dirección es requerida');
+            return;
+        }
+        if (!formData.altura || parseFloat(formData.altura) <= 0) {
+            setError('La altura debe ser mayor a 0');
+            return;
+        }
+        if (!formData.ancho || parseFloat(formData.ancho) <= 0) {
+            setError('El ancho debe ser mayor a 0');
+            return;
+        }
+        if (!formData.departamento) {
+            setError('El departamento es requerido');
+            return;
+        }
+        if (!formData.ciudad) {
+            setError('La ciudad es requerida');
+            return;
+        }
+        if (!formData.categoria) {
+            setError('La categoría es requerida');
+            return;
+        }
+        if (!formData.profundidades.trim()) {
+            setError('Las profundidades son requeridas');
+            return;
+        }
+        if (!formData.forma) {
+            setError('La forma es requerida');
+            return;
+        }
+        if (!formData.uso) {
+            setError('El uso es requerido');
+            return;
+        }
+        if (!formData.foto) {
+            setError('La foto principal es requerida');
+            return;
+        }
+        if (!formData.hojaSeguridad) {
+            setError('La hoja de seguridad es requerida');
+            return;
+        }
+        if (!formData.fichaTecnica) {
+            setError('La ficha técnica es requerida');
+            return;
+        }
+        if (formData.bombas.length === 0) {
+            setError('Debe agregar al menos una bomba');
+            return;
+        }
+
+        // Validar que todas las bombas tengan foto
+        for (let i = 0; i < formData.bombas.length; i++) {
+            const bomba = formData.bombas[i];
+            if (!bomba.marca.trim()) {
+                setError(`La bomba ${i + 1} debe tener una marca`);
+                return;
+            }
+            if (!bomba.referencia.trim()) {
+                setError(`La bomba ${i + 1} debe tener una referencia`);
+                return;
+            }
+            if (!bomba.potencia.trim()) {
+                setError(`La bomba ${i + 1} debe tener una potencia`);
+                return;
+            }
+            if (!bomba.material) {
+                setError(`La bomba ${i + 1} debe tener un material`);
+                return;
+            }
+            if (!bomba.foto) {
+                setError(`La bomba ${i + 1} debe tener una foto`);
+                return;
+            }
+        }
+
         const data = new FormData();
 
         // Create a copy of formData to modify before sending
@@ -101,11 +185,32 @@ const CreatePool = () => {
         dataToSend.municipio = dataToSend.departamento;
         delete dataToSend.departamento;
 
-        // 2. Convert 'profundidades' string to a JSON string array
+        // 2. Convert 'profundidades' string to a JSON string array and validate ordering
         if (dataToSend.profundidades && typeof dataToSend.profundidades === 'string') {
-            const profundidadesArray = dataToSend.profundidades.split(',').map(p => p.trim());
+            const profundidadesArray = dataToSend.profundidades
+                .split(',')
+                .map(p => parseFloat(p.trim()))
+                .filter(p => !isNaN(p));
+            
+            if (profundidadesArray.length === 0) {
+                setError('Las profundidades deben contener números válidos');
+                return;
+            }
+
+            // Verify ascending order
+            for (let i = 0; i < profundidadesArray.length - 1; i++) {
+                if (profundidadesArray[i] >= profundidadesArray[i + 1]) {
+                    setError('Las profundidades deben estar en orden ascendente');
+                    return;
+                }
+            }
+
             dataToSend.profundidades = JSON.stringify(profundidadesArray);
         }
+
+        // 3. Convert altura and ancho to numbers
+        dataToSend.altura = parseFloat(dataToSend.altura);
+        dataToSend.ancho = parseFloat(dataToSend.ancho);
         
         for (const key in dataToSend) {
             if (key === 'bombas') {
@@ -116,7 +221,7 @@ const CreatePool = () => {
                         }
                     }
                 });
-            } else if (dataToSend[key]) {
+            } else if (dataToSend[key] || dataToSend[key] === 0) {
                 data.append(key, dataToSend[key]);
             }
         }
@@ -126,7 +231,22 @@ const CreatePool = () => {
             navigate('/pools'); 
         } catch (err) {
             console.error('Failed to create pool:', err);
-            setError(err.response?.data?.message || 'Error al crear la piscina. Verifique los datos.');
+            
+            let errorMessage = 'Error al crear la piscina. Verifique los datos.';
+            
+            // Try to get detailed error messages from backend
+            if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+                // Join all validation errors
+                errorMessage = err.response.data.errors
+                    .map((e) => e.msg || e.message || String(e))
+                    .join('; ');
+            } else if (err.response?.data?.message) {
+                errorMessage = err.response.data.message;
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
+            setError(errorMessage);
         }
     };
 

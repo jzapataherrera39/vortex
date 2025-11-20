@@ -42,6 +42,7 @@ const updatePool = async (id, poolData) => {
     const config = {
         headers: {
             Authorization: `Bearer ${getToken()}`,
+            'Content-Type': 'multipart/form-data',
         },
     };
     const response = await axios.put(`${API_URL}/${id}`, poolData, config);
