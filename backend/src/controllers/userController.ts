@@ -115,5 +115,19 @@ const toggleUserStatus = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error del servidor' });
     }
 };
+const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById(req.params.id);
 
-export { getUsers, createUser, getUserById, updateUser, toggleUserStatus };
+        if (user) {
+            await user.deleteOne(); // Borra el documento de MongoDB
+            res.json({ message: 'Usuario eliminado correctamente' });
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error del servidor', error: error.message });
+    }
+};
+
+export { getUsers, createUser, getUserById, updateUser, toggleUserStatus, deleteUser };

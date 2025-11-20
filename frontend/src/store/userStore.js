@@ -69,6 +69,23 @@ const userStore = create((set, get) => ({
       return false;
     }
   },
+  // 5. Eliminar usuario permanentemente (NUEVO)
+  deleteUser: async (id) => {
+    try {
+      await api.delete(`/users/${id}`);
+      
+      // Filtramos el usuario eliminado de la lista local para que desaparezca al instante
+      set((state) => ({
+        users: state.users.filter((user) => user._id !== id),
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      return false;
+    }
+  },
+
 }));
 
 export default userStore;

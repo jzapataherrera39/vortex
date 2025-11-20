@@ -20,11 +20,7 @@ const createPool = async (poolData) => {
 };
 
 const updatePool = async (id, poolData) => {
-    const response = await api.put(`/piscinas/${id}`, poolData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+    const response = await api.put(`/piscinas/${id}`, poolData);
     return response.data;
 };
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getUsers, createUser, updateUser, toggleUserStatus, getUserById } from '../controllers/userController';
+import { getUsers, createUser, updateUser, toggleUserStatus, getUserById, deleteUser } from '../controllers/userController';
 import { protect, admin } from '../middlewares/authMiddleware';
 
 const router = Router();
@@ -10,7 +10,8 @@ router.route('/')
 
 router.route('/:id')
   .get(protect, admin, getUserById)
-  .put(protect, admin, updateUser);
+  .put(protect, admin, updateUser)
+  .delete(protect, admin, deleteUser);
 
 // Esta es la ruta clave que faltaba para inactivar
 router.route('/:id/toggle')
