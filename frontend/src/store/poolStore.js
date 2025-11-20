@@ -1,22 +1,57 @@
+// src/store/poolStore.js
 import { create } from "zustand";
-import { getPools as getPoolsApi } from "../api/poolApi";
+import {
+  getPools,
+  createPool,
+  updatePool,
+  deletePool
+} from "../api/poolApi";
 
-const poolStore = create((set) => ({
+const poolStore = create((set, get) => ({
   pools: [],
-  
-  // Función que trae las piscinas desde el backend
+  loading: false,
+
   fetchPools: async () => {
+    set({ loading: true });
     try {
-      const data = await getPoolsApi();
-      set({ pools: data });
+      const data = await getPools();
+      set({ pools: data, loading: false });
     } catch (err) {
       console.error("Error fetching pools:", err);
+      set({ loading: false });
     }
   },
 
-  addPool: async (pool) => { /* ... */ },
-  editPool: async (id, pool) => { /* ... */ },
-  deletePool: async (id) => { /* ... */ },
+  addPool: async (poolData) => {
+    try {
+      const newPool = await createPool(poolData);
+      set({ pools: [...get().pools, newPool] });
+    } catch (err) {
+      console.error("Error adding pool:", err);
+    }
+  },
+
+  editPool: async (id, poolData) => {
+    try {
+      const updatedPool = await updatePool(id, poolData);
+      set({
+        pools: get().pools.map((p) => (p._id === id ? updatedPool : p))
+      });
+    } catch (err) {
+      console.error("Error editing pool:", err);
+    }
+  },
+
+  deletePool: async (id) => {
+    try {
+      await deletePool(id);
+      set({
+        pools: get().pools.filter((p) => p._id !== id)
+      });
+    } catch (err) {
+      console.error("Error deleting pool:", err);
+    }
+  }
 }));
 
 export default poolStore;

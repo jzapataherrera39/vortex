@@ -10,21 +10,24 @@ const Welcome = () => {
     const login = useAuthStore((state) => state.login);
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setError('');
-        try {
-            const res = await login(email, password);
-            if (res?.token) {
-                navigate('/pools'); // Redirige a la página principal después del login
-            } else {
-                setError(res?.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.');
-            }
-        } catch (err) {
-            setError('Ocurrió un error inesperado. Inténtalo de nuevo.');
-            console.error(err);
+   const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+        const res = await login({ email, password }); // ← AQUÍ EL FIX
+
+        if (res?.success) {
+            navigate('/pools');
+        } else {
+            setError(res?.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.');
         }
-    };
+    } catch (err) {
+        setError('Ocurrió un error inesperado. Inténtalo de nuevo.');
+        console.error(err);
+    }
+};
+
 
     return (
         <div style={{

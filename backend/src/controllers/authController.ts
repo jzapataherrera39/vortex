@@ -34,6 +34,7 @@ export const registerUser = async (req: Request, res: Response) => {
       rol: user.rol,
       token: generateToken(user._id),
     });
+    
 
   } catch (error) {
     console.error('REGISTER ERROR:', error);

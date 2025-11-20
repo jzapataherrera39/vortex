@@ -77,8 +77,7 @@ const PoolForm = ({ initialData = {}, onSubmit, isEditMode = false }) => {
         hojaSeguridad: null,
         fichaTecnica: null,
       }]
-    }));
-  };
+    }));  };
 
   const handleRemoveBomba = (index) => {
     const newBombas = formData.bombas.filter((_, i) => i !== index);

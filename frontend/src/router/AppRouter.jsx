@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 
 import Welcome from "../pages/Welcome";
-
 import PoolList from "../pages/Pools/PoolList";
 import PoolCreate from "../pages/Pools/CreatePool";
 import PoolEdit from "../pages/Pools/EditPool";

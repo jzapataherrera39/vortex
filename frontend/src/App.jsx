@@ -1,16 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import AppRouter from './router/AppRouter';
 import useAuthStore from './store/authStore';
 
 function App() {
-  const { user, logout, initializeUser } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    initializeUser(); // Inicializa el user desde el token
-  }, [initializeUser]); // <-- evita warning de React Hook
 
   const handleLogout = () => {
     logout();
