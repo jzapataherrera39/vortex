@@ -1,16 +1,32 @@
-import React from 'react';
-import LoginForm from '../components/LoginForm'; // Asegúrate de que este componente exista
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import LoginForm from '../components/LoginForm';
 import { Box, Paper, Typography, Avatar, Grid } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import useAuthStore from '../store/authStore'; // Importamos la store para verificar sesión
 
 const LoginPage = () => {
+  const { user } = useAuthStore(); // Obtenemos el usuario actual
+  const navigate = useNavigate();
+
+  // --- NUEVA LÓGICA ---
+  // Si el usuario ya existe (está logueado), lo mandamos a pools inmediatamente.
+  useEffect(() => {
+    if (user) {
+      navigate('/pools');
+    }
+  }, [user, navigate]);
+
+  // Si está logueado, retornamos null para no renderizar nada mientras redirige
+  if (user) return null; 
+
   return (
     <Grid 
       container 
       component="main" 
       sx={{ 
-        height: '100vh', // Ocupa toda la altura de la pantalla
-        backgroundImage: 'linear-gradient(135deg, #004e92 0%, #000428 100%)', // Gradiente Azul Profundo
+        height: '100vh', 
+        backgroundImage: 'linear-gradient(135deg, #004e92 0%, #000428 100%)', 
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'
@@ -18,14 +34,14 @@ const LoginPage = () => {
     >
       <Grid item xs={12} sm={8} md={5} lg={4}>
         <Paper
-          elevation={10} // Sombra fuerte para destacar sobre el azul
+          elevation={10} 
           sx={{
             p: 4,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            borderRadius: 3, // Bordes redondeados modernos
-            backgroundColor: 'rgba(255, 255, 255, 0.95)', // Blanco ligeramente translúcido (opcional)
+            borderRadius: 3, 
+            backgroundColor: 'rgba(255, 255, 255, 0.95)', 
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'primary.main', width: 56, height: 56 }}>
@@ -37,11 +53,9 @@ const LoginPage = () => {
           </Typography>
 
           <Box sx={{ width: '100%' }}>
-            {/* Aquí cargamos tu formulario funcional */}
             <LoginForm />
           </Box>
           
-          {/* Footer opcional dentro de la tarjeta */}
           <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 3 }}>
             © {new Date().getFullYear()} Vortex App
           </Typography>
